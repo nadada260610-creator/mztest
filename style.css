@@ -493,3 +493,117 @@ button {
     background: rgba(255, 255, 255, 0.2);
     border-radius: 10px;
 }
+
+
+/* ====================================================
+   Responsive PC Layout (min-width: 768px)
+   ==================================================== */
+@media (min-width: 768px) {
+    /* 1. App Container */
+    .app-container {
+        max-width: 900px;
+        padding: 40px;
+    }
+    
+    .glass-panel {
+        min-height: 500px;
+        padding: 50px;
+    }
+    
+    /* 2. Start Screen */
+    .start-header-wrapper {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        text-align: left;
+    }
+    
+    .start-text {
+        flex: 1;
+    }
+    
+    .hero-graphic {
+        flex: 1;
+        margin: 0;
+        height: 250px;
+    }
+    
+    .title {
+        font-size: 2.5rem;
+    }
+    
+    .subtitle {
+        font-size: 1.1rem;
+    }
+    
+    /* 3. Question Screen */
+    .options-container {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+        height: 100%;
+        align-items: stretch;
+    }
+    
+    .option-btn {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 30px 20px;
+    }
+    
+    .opt-label {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: var(--primary);
+        font-weight: bold;
+    }
+    
+    .opt-text {
+        font-size: 1.1rem;
+        line-height: 1.5;
+    }
+    
+    /* 4. Result Screen */
+    .result-layout {
+        display: flex;
+        flex-direction: row;
+        gap: 40px;
+    }
+    
+    .result-left {
+        flex: 0 0 350px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+    }
+    
+    .result-right {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .result-header {
+        text-align: center;
+    }
+    
+    #result-character-img {
+        width: 100%;
+        max-width: 350px;
+    }
+    
+    .chemistry {
+        flex-direction: row;
+        gap: 20px;
+    }
+}
+
+.opt-label { font-weight: bold; margin-right: 10px; color: var(--primary); }
+

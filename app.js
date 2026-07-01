@@ -318,8 +318,8 @@ const progressFill = document.getElementById('progress-fill');
 const progressText = document.getElementById('progress-text');
 const questionBadge = document.getElementById('question-badge');
 const questionTitle = document.getElementById('question-title');
-const optionAText = optionABtn.querySelector('.option-text');
-const optionBText = optionBBtn.querySelector('.option-text');
+const optionAText = document.getElementById('opt-a-text');
+const optionBText = document.getElementById('opt-b-text');
 
 // Init
 startBtn.addEventListener('click', startTest);
