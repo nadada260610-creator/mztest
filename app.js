@@ -310,7 +310,6 @@ const resultScreen = document.getElementById('result-screen');
 const startBtn = document.getElementById('start-btn');
 const optionABtn = document.getElementById('option-a');
 const optionBBtn = document.getElementById('option-b');
-const shareBtn = document.getElementById('share-btn');
 const retryBtn = document.getElementById('retry-btn');
 const toastMsg = document.getElementById('toast-msg');
 
@@ -325,7 +324,6 @@ const optionBText = document.getElementById('opt-b-text');
 startBtn.addEventListener('click', startTest);
 optionABtn.addEventListener('click', () => handleAnswer('A'));
 optionBBtn.addEventListener('click', () => handleAnswer('B'));
-shareBtn.addEventListener('click', copyLink);
 retryBtn.addEventListener('click', resetTest);
 
 function switchScreen(from, to) {
