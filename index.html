@@ -59,19 +59,23 @@
                     <div id="progress-text" class="progress-text">1 / 10</div>
                 </div>
                 
-                <div class="question-container">
-                    <div id="question-badge" class="q-badge">Q1</div>
-                    <h2 id="question-title" class="q-title">질문 내용</h2>
-                    <div class="options-container">
-                        <button class="option-btn" id="option-a">
-                            <span class="opt-label">A</span>
-                            <span class="opt-text" id="opt-a-text"></span>
-                        </button>
-                        
-                        <button class="option-btn" id="option-b">
-                            <span class="opt-label">B</span>
-                            <span class="opt-text" id="opt-b-text"></span>
-                        </button>
+                <div class="chat-container">
+                    <div class="chat-history" id="chat-history">
+                        <!-- Chat bubbles injected here via JS -->
+                    </div>
+                    
+                    <div class="chat-input-area" id="chat-input-area">
+                        <div class="options-container chatbot-options">
+                            <button class="option-btn chat-option-btn" id="option-a">
+                                <span class="opt-label">A</span>
+                                <span class="opt-text" id="opt-a-text"></span>
+                            </button>
+                            
+                            <button class="option-btn chat-option-btn" id="option-b">
+                                <span class="opt-label">B</span>
+                                <span class="opt-text" id="opt-b-text"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>

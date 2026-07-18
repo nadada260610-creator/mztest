@@ -315,8 +315,8 @@ const toastMsg = document.getElementById('toast-msg');
 
 const progressFill = document.getElementById('progress-fill');
 const progressText = document.getElementById('progress-text');
-const questionBadge = document.getElementById('question-badge');
-const questionTitle = document.getElementById('question-title');
+const chatHistory = document.getElementById('chat-history');
+const chatInputArea = document.getElementById('chat-input-area');
 const optionAText = document.getElementById('opt-a-text');
 const optionBText = document.getElementById('opt-b-text');
 
@@ -338,34 +338,52 @@ function startTest() {
     currentStep = 0;
     scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
     userAnswers = [];
+    chatHistory.innerHTML = ''; // Reset chat
     renderQuestion();
 }
 
 function renderQuestion() {
     const qData = questions[currentStep];
     
-    // Animation reset
-    questionTitle.parentElement.classList.remove('slide-in');
-    void questionTitle.parentElement.offsetWidth; // trigger reflow
-    questionTitle.parentElement.classList.add('slide-in');
-
-    questionBadge.textContent = `Q${currentStep + 1}`;
-    
-    // Parse question title (split by ":") to make it look nicer if needed
-    const parts = qData.q.split(':');
-    if (parts.length > 1) {
-        questionTitle.innerHTML = `<span style="color:var(--accent); font-size:1.1rem; display:block; margin-bottom:8px;">${parts[0]}</span>${parts[1]}`;
-    } else {
-        questionTitle.textContent = qData.q;
-    }
-
-    optionAText.textContent = qData.a;
-    optionBText.textContent = qData.b;
-
     // Update Progress
     const percent = ((currentStep + 1) / questions.length) * 100;
     progressFill.style.width = `${percent}%`;
     progressText.textContent = `${currentStep + 1} / 20`;
+
+    // Show typing indicator
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'typing-indicator';
+    typingDiv.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+    chatHistory.appendChild(typingDiv);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    // Hide input area while bot is typing
+    chatInputArea.style.display = 'none';
+
+    setTimeout(() => {
+        // Remove typing indicator
+        chatHistory.removeChild(typingDiv);
+
+        // Append Bot Question
+        const botMsg = document.createElement('div');
+        botMsg.className = 'chat-msg chat-bot';
+        
+        const parts = qData.q.split(':');
+        if (parts.length > 1) {
+            botMsg.innerHTML = `<strong style="color:var(--accent); font-size:1.1rem; display:block; margin-bottom:8px;">${parts[0]}</strong>${parts[1]}`;
+        } else {
+            botMsg.textContent = qData.q;
+        }
+        
+        chatHistory.appendChild(botMsg);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+
+        // Show options
+        optionAText.textContent = qData.a;
+        optionBText.textContent = qData.b;
+        chatInputArea.style.display = 'block';
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }, 600);
 }
 
 const scoringMap = [
@@ -391,22 +409,34 @@ const scoringMap = [
     { A: ['S', 'T'], B: ['N', 'F'] }  // 20
 ];
 
-function handleAnswer(choice) {
-    userAnswers.push(choice);
+function handleAnswer(val) {
+    const qData = questions[currentStep];
+    const answerText = (val === 'A') ? qData.a : qData.b;
+
+    // Append User Choice
+    const userMsg = document.createElement('div');
+    userMsg.className = 'chat-msg chat-user';
+    userMsg.textContent = answerText;
+    chatHistory.appendChild(userMsg);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
     
-    // Scoring logic
-    const traits = scoringMap[currentStep][choice];
+    // Hide input area immediately
+    chatInputArea.style.display = 'none';
+
+    // Calculate score
+    const traits = scoringMap[currentStep][val];
     traits.forEach(t => scores[t] += 1);
+    
+    userAnswers.push(val);
 
     currentStep++;
 
     if (currentStep < questions.length) {
-        renderQuestion();
+        setTimeout(renderQuestion, 400); // Small pause before bot types
     } else {
-        showLoading();
+        setTimeout(showLoading, 800);
     }
 }
-
 function showLoading() {
     switchScreen(questionScreen, loadingScreen);
     
