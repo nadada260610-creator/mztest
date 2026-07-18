@@ -22,6 +22,64 @@ def get_sheets_service():
     service = build('sheets', 'v4', credentials=creds)
     return service
 
+import requests
+
+OLLAMA_API_URL = "http://localhost:11434/api/chat"
+OLLAMA_MODEL = "llama3:latest"
+
+EVAL_SYSTEM_PROMPT = """너는 MBTI 테스트의 질문 의도와 A, B 선택지를 바탕으로, 사용자의 자유로운 주관식 답변이 A와 B 중 어느 쪽에 더 가까운지 판별하는 봇이야.
+반드시 아래의 정해진 두 줄 형식으로만 대답해:
+선택: [A 또는 B]
+리액션: [사용자 답변에 대한 유쾌하고 짧은 공감 멘트]"""
+
+@app.route('/api/evaluate', methods=['POST'])
+def evaluate_answer():
+    try:
+        data = request.json
+        question = data.get('q')
+        opt_a = data.get('a')
+        opt_b = data.get('b')
+        user_answer = data.get('answer')
+        
+        user_content = f"질문: {question}\nA 선택지: {opt_a}\nB 선택지: {opt_b}\n사용자 답변: {user_answer}\n이 답변은 A와 B중 어디에 가깝나요?"
+        
+        messages = [
+            {"role": "system", "content": EVAL_SYSTEM_PROMPT},
+            {"role": "user", "content": user_content}
+        ]
+        
+        payload = {
+            "model": OLLAMA_MODEL,
+            "messages": messages,
+            "stream": False,
+            "temperature": 0.3
+        }
+        
+        response = requests.post(OLLAMA_API_URL, json=payload)
+        response.raise_for_status()
+        
+        ai_text = response.json()['message']['content']
+        
+        # 파싱
+        choice = 'A'
+        reaction = '멋진 생각이네요!'
+        
+        for line in ai_text.split('\n'):
+            line = line.strip()
+            if line.startswith('선택:'):
+                if 'B' in line.upper(): choice = 'B'
+            elif line.startswith('리액션:'):
+                reaction = line.replace('리액션:', '').strip()
+                
+        return jsonify({
+            'success': True,
+            'choice': choice,
+            'reaction': reaction
+        })
+    except Exception as e:
+        print("Evaluate Error:", str(e).encode('utf-8', 'ignore').decode('utf-8'))
+        return jsonify({'success': False, 'choice': 'A', 'reaction': '좋은 답변입니다!'})
+
 @app.route('/api/save', methods=['POST'])
 def save_result():
     try:

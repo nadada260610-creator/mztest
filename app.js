@@ -335,6 +335,10 @@ function startTest() {
     renderQuestion();
 }
 
+const chatInputArea = document.getElementById('chat-input-area');
+const chatForm = document.getElementById('chat-form');
+const chatInput = document.getElementById('chat-input');
+
 function renderQuestion() {
     const qData = questions[currentStep];
     
@@ -346,47 +350,38 @@ function renderQuestion() {
     // Show typing indicator
     const typingDiv = document.createElement('div');
     typingDiv.className = 'typing-indicator';
+    typingDiv.id = 'current-typing-indicator';
     typingDiv.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
     chatHistory.appendChild(typingDiv);
     chatHistory.scrollTop = chatHistory.scrollHeight;
 
     setTimeout(() => {
         // Remove typing indicator
-        chatHistory.removeChild(typingDiv);
+        const ind = document.getElementById('current-typing-indicator');
+        if (ind) ind.remove();
 
-        // Append Bot Question
+        // Append Bot Question with A/B options inline in text
         const botMsg = document.createElement('div');
         botMsg.className = 'chat-msg chat-bot';
         
         const parts = qData.q.split(':');
+        let htmlContent = '';
         if (parts.length > 1) {
-            botMsg.innerHTML = `<strong style="color:var(--accent); font-size:1.1rem; display:block; margin-bottom:8px;">${parts[0]}</strong>${parts[1]}`;
+            htmlContent += `<strong style="color:var(--accent); font-size:1.1rem; display:block; margin-bottom:8px;">${parts[0]}</strong>${parts[1]}`;
         } else {
-            botMsg.textContent = qData.q;
+            htmlContent += qData.q;
         }
         
+        // 질문 텍스트 안에 A와 B 선택지를 추가
+        htmlContent += `<br><br><span style="color:#aaa;">[A] ${qData.a}</span><br><span style="color:#aaa;">[B] ${qData.b}</span>`;
+        
+        botMsg.innerHTML = htmlContent;
         chatHistory.appendChild(botMsg);
         chatHistory.scrollTop = chatHistory.scrollHeight;
 
-        // Create inline options
-        const optionsDiv = document.createElement('div');
-        optionsDiv.className = 'chat-options-inline';
-        optionsDiv.id = 'current-inline-options';
-
-        const btnA = document.createElement('button');
-        btnA.className = 'inline-option-btn';
-        btnA.innerHTML = `<span class="opt-label">A</span><span class="opt-text">${qData.a}</span>`;
-        btnA.onclick = () => handleAnswer('A');
-
-        const btnB = document.createElement('button');
-        btnB.className = 'inline-option-btn';
-        btnB.innerHTML = `<span class="opt-label">B</span><span class="opt-text">${qData.b}</span>`;
-        btnB.onclick = () => handleAnswer('B');
-
-        optionsDiv.appendChild(btnA);
-        optionsDiv.appendChild(btnB);
-        chatHistory.appendChild(optionsDiv);
-        chatHistory.scrollTop = chatHistory.scrollHeight;
+        // 입력창 활성화
+        chatInputArea.style.display = 'flex';
+        chatInput.focus();
     }, 600);
 }
 
@@ -413,36 +408,77 @@ const scoringMap = [
     { A: ['S', 'T'], B: ['N', 'F'] }  // 20
 ];
 
-function handleAnswer(val) {
-    const qData = questions[currentStep];
-    const answerText = (val === 'A') ? qData.a : qData.b;
+if (chatForm) {
+    chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = chatInput.value.trim();
+        if(!text) return;
+        
+        chatInput.value = '';
+        
+        // Append User Choice
+        const userMsg = document.createElement('div');
+        userMsg.className = 'chat-msg chat-user';
+        userMsg.textContent = text;
+        chatHistory.appendChild(userMsg);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+        
+        chatInputArea.style.display = 'none';
+        
+        // Show typing indicator
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'typing-indicator';
+        typingDiv.id = 'current-typing-indicator';
+        typingDiv.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+        chatHistory.appendChild(typingDiv);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+        
+        const qData = questions[currentStep];
+        
+        // API Call
+        fetch('http://localhost:5000/api/evaluate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                q: qData.q,
+                a: qData.a,
+                b: qData.b,
+                answer: text
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            const ind = document.getElementById('current-typing-indicator');
+            if (ind) ind.remove();
+            
+            const choice = data.choice || 'A';
+            const reaction = data.reaction || '좋은 답변입니다!';
+            
+            // Append Reaction
+            const botMsg = document.createElement('div');
+            botMsg.className = 'chat-msg chat-bot';
+            botMsg.textContent = reaction;
+            chatHistory.appendChild(botMsg);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            
+            // Score calc
+            const traits = scoringMap[currentStep][choice];
+            traits.forEach(t => scores[t] += 1);
+            userAnswers.push(choice);
+            
+            currentStep++;
 
-    // Append User Choice
-    const userMsg = document.createElement('div');
-    userMsg.className = 'chat-msg chat-user';
-    userMsg.textContent = answerText;
-    chatHistory.appendChild(userMsg);
-    chatHistory.scrollTop = chatHistory.scrollHeight;
-    
-    // Remove inline options immediately
-    const inlineOptions = document.getElementById('current-inline-options');
-    if (inlineOptions) {
-        inlineOptions.remove();
-    }
-
-    // Calculate score
-    const traits = scoringMap[currentStep][val];
-    traits.forEach(t => scores[t] += 1);
-    
-    userAnswers.push(val);
-
-    currentStep++;
-
-    if (currentStep < questions.length) {
-        setTimeout(renderQuestion, 400); // Small pause before bot types
-    } else {
-        setTimeout(showLoading, 800);
-    }
+            if (currentStep < questions.length) {
+                setTimeout(renderQuestion, 800);
+            } else {
+                setTimeout(showLoading, 1500);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("AI 연동 오류");
+        });
+    });
 }
 function showLoading() {
     switchScreen(questionScreen, loadingScreen);

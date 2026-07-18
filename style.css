@@ -731,3 +731,49 @@ button {
     }
 }
 
+
+
+/* --- Chat Input Area --- */
+.chat-form {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 25px;
+    padding: 5px 15px;
+    margin-top: 10px;
+}
+.chat-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    font-size: 1.05rem;
+    padding: 10px;
+    outline: none;
+}
+.chat-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+.chat-send-btn {
+    background: var(--primary);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.chat-send-btn:hover {
+    transform: scale(1.05);
+    background: #ff5eb0;
+}
+.chat-send-btn svg {
+    margin-right: 2px;
+    margin-top: 2px;
+}
+
