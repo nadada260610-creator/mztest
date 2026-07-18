@@ -691,3 +691,43 @@ button {
     }
 }
 
+
+
+/* --- Inline Chat Options --- */
+.chat-options-inline {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-self: flex-start;
+    width: 100%;
+}
+.inline-option-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 15px 20px;
+    text-align: left;
+    color: var(--text-main);
+    font-size: 1.05rem;
+    line-height: 1.5;
+    word-break: keep-all;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    animation: fadeInBubble 0.3s ease;
+}
+.inline-option-btn:hover, .inline-option-btn:active {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    border-color: var(--primary);
+}
+@media (min-width: 768px) {
+    .chat-options-inline {
+        flex-direction: row;
+    }
+    .inline-option-btn {
+        flex: 1;
+    }
+}
+

@@ -308,22 +308,15 @@ const loadingScreen = document.getElementById('loading-screen');
 const resultScreen = document.getElementById('result-screen');
 
 const startBtn = document.getElementById('start-btn');
-const optionABtn = document.getElementById('option-a');
-const optionBBtn = document.getElementById('option-b');
 const retryBtn = document.getElementById('retry-btn');
 const toastMsg = document.getElementById('toast-msg');
 
 const progressFill = document.getElementById('progress-fill');
 const progressText = document.getElementById('progress-text');
 const chatHistory = document.getElementById('chat-history');
-const chatInputArea = document.getElementById('chat-input-area');
-const optionAText = document.getElementById('opt-a-text');
-const optionBText = document.getElementById('opt-b-text');
 
 // Init
 startBtn.addEventListener('click', startTest);
-optionABtn.addEventListener('click', () => handleAnswer('A'));
-optionBBtn.addEventListener('click', () => handleAnswer('B'));
 retryBtn.addEventListener('click', resetTest);
 
 function switchScreen(from, to) {
@@ -357,9 +350,6 @@ function renderQuestion() {
     chatHistory.appendChild(typingDiv);
     chatHistory.scrollTop = chatHistory.scrollHeight;
 
-    // Hide input area while bot is typing
-    chatInputArea.style.display = 'none';
-
     setTimeout(() => {
         // Remove typing indicator
         chatHistory.removeChild(typingDiv);
@@ -378,10 +368,24 @@ function renderQuestion() {
         chatHistory.appendChild(botMsg);
         chatHistory.scrollTop = chatHistory.scrollHeight;
 
-        // Show options
-        optionAText.textContent = qData.a;
-        optionBText.textContent = qData.b;
-        chatInputArea.style.display = 'block';
+        // Create inline options
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'chat-options-inline';
+        optionsDiv.id = 'current-inline-options';
+
+        const btnA = document.createElement('button');
+        btnA.className = 'inline-option-btn';
+        btnA.innerHTML = `<span class="opt-label">A</span><span class="opt-text">${qData.a}</span>`;
+        btnA.onclick = () => handleAnswer('A');
+
+        const btnB = document.createElement('button');
+        btnB.className = 'inline-option-btn';
+        btnB.innerHTML = `<span class="opt-label">B</span><span class="opt-text">${qData.b}</span>`;
+        btnB.onclick = () => handleAnswer('B');
+
+        optionsDiv.appendChild(btnA);
+        optionsDiv.appendChild(btnB);
+        chatHistory.appendChild(optionsDiv);
         chatHistory.scrollTop = chatHistory.scrollHeight;
     }, 600);
 }
@@ -420,8 +424,11 @@ function handleAnswer(val) {
     chatHistory.appendChild(userMsg);
     chatHistory.scrollTop = chatHistory.scrollHeight;
     
-    // Hide input area immediately
-    chatInputArea.style.display = 'none';
+    // Remove inline options immediately
+    const inlineOptions = document.getElementById('current-inline-options');
+    if (inlineOptions) {
+        inlineOptions.remove();
+    }
 
     // Calculate score
     const traits = scoringMap[currentStep][val];
